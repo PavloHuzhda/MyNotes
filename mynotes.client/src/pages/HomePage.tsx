@@ -1,15 +1,16 @@
-// HomePage.tsx
 import React, { useEffect, useState } from "react";
 import { Note } from "../types/Note";
 import { getNotes, deleteNote, findNotesByTitle, sortNotes } from "../services/noteService";
-import NoteItem from "../components/NoteItem";
+import { Table, Button, Input, Select, Space, notification } from "antd";
 import { useNavigate } from "react-router-dom";
+import moment from "moment";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons"; // Import icons
+
+const { Search } = Input;
+const { Option } = Select;
 
 const HomePage: React.FC = () => {
     const [notes, setNotes] = useState<Note[]>([]);
-    const [searchTerm, setSearchTerm] = useState<string>("");
-    const [sortOption, setSortOption] = useState<string>("");
-
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -23,43 +24,87 @@ const HomePage: React.FC = () => {
 
     const handleDelete = async (id: string) => {
         await deleteNote(id);
+        notification.success({ message: 'Note deleted successfully' });
         fetchNotes();
     };
 
-    const handleSearch = async () => {
-        const searchedNotes = await findNotesByTitle(searchTerm);
-        setNotes(searchedNotes);
+    const handleSearch = async (value: string) => {
+        if (value.trim() !== "") {
+            const searchedNotes = await findNotesByTitle(value);
+            setNotes(searchedNotes);
+        } else {
+            fetchNotes(); // Re-fetch all notes if search box is empty
+        }
     };
 
-    const handleSort = async (sortBy: string) => {
-        const sortedNotes = await sortNotes(sortBy);
+    const handleSort = async (value: string) => {
+        const sortedNotes = await sortNotes(value);
         setNotes(sortedNotes);
     };
+
+    const columns = [
+        {
+            title: 'Title',
+            dataIndex: 'title',
+            key: 'title',
+        },
+        {
+            title: 'Content',
+            dataIndex: 'content',
+            key: 'content',
+        },
+        {
+            title: 'Created At',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            render: (text: string) => moment(text).format("YYYY-MM-DD HH:mm"),
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_: any, record: Note) => (
+                <Space>
+                    <Button
+                        type="primary"
+                        icon={<EditOutlined />}
+                        onClick={() => navigate(`/update/${record.id}`)}
+                        style={{ backgroundColor: '#fadb14', borderColor: '#fadb14' }}
+                    >
+                        Edit
+                    </Button>
+                    <Button
+                        type="primary"
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleDelete(record.id)}
+                    >
+                        Delete
+                    </Button>
+                </Space>
+            ),
+        },
+    ];
 
     return (
         <div>
             <h1>Notes</h1>
-            <input
-                type="text"
-                placeholder="Search by title"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button onClick={handleSearch}>Search</button>
-
-            <select onChange={(e) => handleSort(e.target.value)}>
-                <option value="">Sort By</option>
-                <option value="datetime_asc">Datetime Ascending</option>
-                <option value="datetime_desc">Datetime Descending</option>
-                <option value="title_asc">Title Ascending</option>
-                <option value="title_desc">Title Descending</option>
-            </select>
-
-            <button onClick={() => navigate("/create")}>Create New Note</button>
-
-            {notes.map((note) => (
-                <NoteItem key={note.id} note={note} onDelete={handleDelete} />
-            ))}
+            <Space style={{ marginBottom: 16 }}>
+                <Search
+                    placeholder="Search by title"
+                    onSearch={handleSearch}
+                    enterButton
+                />
+                <Select placeholder="Sort By" onChange={handleSort} style={{ width: 180 }}>
+                    <Option value="datetime_asc">Datetime Ascending</Option>
+                    <Option value="datetime_desc">Datetime Descending</Option>
+                    <Option value="title_asc">Title Ascending</Option>
+                    <Option value="title_desc">Title Descending</Option>
+                </Select>
+                <Button type="primary" onClick={() => navigate("/create")}>
+                    Create New Note
+                </Button>
+            </Space>
+            <Table dataSource={notes} columns={columns} rowKey="id" />
         </div>
     );
 };
