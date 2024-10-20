@@ -7,11 +7,7 @@ namespace MyNotes.Server.Entities
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; } = null!;
-
-        //[BsonElement("userId")]
-        //[BsonRepresentation(BsonType.ObjectId)]
-        //public string UserId { get; set; } = null!;
+        public string Id { get; set; } = null!;        
 
         [BsonElement("title")]
         public string Title { get; set; } = null!;

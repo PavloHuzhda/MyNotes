@@ -13,22 +13,12 @@ namespace MyNotes.Server.Repositories
         public NoteRepository(MongoDbService dbService)
         {
             _notes = dbService.Notes;
-        }
-
-        //public async Task<List<Note>> GetNotesByUserIdAsync(string userId)
-        //{
-        //    return await _notes.Find(note => note.UserId == userId).ToListAsync();
-        //}
+        }       
 
         public async Task CreateNoteAsync(Note note)
         {
             await _notes.InsertOneAsync(note);
-        }
-
-        //public async Task<List<Note>> GetAllAsync()
-        //{
-        //    return await _notes.Find(note => true).ToListAsync();
-        //}
+        }       
 
         public async Task<bool> UpdateNoteAsync(string id, NoteDto noteDto)
         {
@@ -71,17 +61,27 @@ namespace MyNotes.Server.Repositories
                     Builders<Note>.Sort.Descending(n => n.Title);
             }
             else
-            {
-                // Default sorting by title ascending
+            {                
                 sortDefinition = Builders<Note>.Sort.Ascending(n => n.Title);
             }
 
             return await _notes.Find(_ => true).Sort(sortDefinition).ToListAsync();
         }
 
-        public async Task<IEnumerable<Note>> GetAllNotesAsync()
+        public async Task<(IEnumerable<Note>, long)> GetAllNotesAsync(int pageNumber, int pageSize)
         {
-            return await _notes.Find(_ => true).ToListAsync();
+            var totalCount = await _notes.CountDocumentsAsync(_ => true);
+            var notes = await _notes.Find(_ => true)
+                                    .Skip((pageNumber - 1) * pageSize)
+                                    .Limit(pageSize)
+                                    .ToListAsync();
+
+            return (notes, totalCount);
+        }
+
+        public async Task<long> GetTotalNotesCountAsync() // Implementation to get the total count
+        {
+            return await _notes.CountDocumentsAsync(_ => true);
         }
     }
 }
