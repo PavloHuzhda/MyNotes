@@ -20,10 +20,17 @@ namespace MyNotes.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllNotes()
+        public async Task<IActionResult> GetAllNotes(int pageNumber = 1, int pageSize = 3)
         {
-            var notes = await _noteRepository.GetAllNotesAsync();
-            return Ok(notes);
+            var (notes, totalNotes) = await _noteRepository.GetAllNotesAsync(pageNumber, pageSize);
+
+            return Ok(new
+            {
+                notes,
+                totalCount = totalNotes,
+                currentPage = pageNumber,
+                pageSize = pageSize
+            });
         }
 
         [HttpPost]
@@ -33,11 +40,7 @@ namespace MyNotes.Server.Controllers
             {
                 return BadRequest(ModelState);
             }
-            //var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            //if (string.IsNullOrEmpty(userId))
-            //{
-            //    return Unauthorized("UserId is not available or user is not authenticated.");
-            //}
+            
             var note = new Note
             {
                 Id = ObjectId.GenerateNewId().ToString(), // Generate a new ID for the note
@@ -45,11 +48,11 @@ namespace MyNotes.Server.Controllers
                 Content = noteDto.Content,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                //UserId = userId // Assign a UserId based on authentication, or from the noteDto if it is included
+                
             };
 
             await _noteRepository.CreateNoteAsync(note);
-            //var userNotes = await _noteRepository.GetNotesByUserIdAsync(note.UserId);
+            
             var allNotes = await _noteRepository.GetAllNotesAsync();
                         
             return Ok(allNotes);            

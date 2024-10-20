@@ -1,42 +1,42 @@
-// CreateNotePage.tsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import { createNote } from "../services/noteService";
+import { useNavigate } from "react-router-dom";
+import { Form, Input, Button, notification } from "antd";
 
 const CreateNotePage: React.FC = () => {
-    const [title, setTitle] = useState<string>("");
-    const [content, setContent] = useState<string>("");
-
+    const [form] = Form.useForm();
     const navigate = useNavigate();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (values: any) => {
         await createNote({
-            title,
-            content,
+            title: values.title,
+            content: values.content,
             createdAt: new Date().toISOString(),
         });
+        notification.success({ message: 'Note created successfully' });
+        navigate("/");
+    };
+
+    const handleCancel = () => {
         navigate("/");
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Create New Note</h2>
-            <input
-                type="text"
-                placeholder="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-            />
-            <textarea
-                placeholder="Content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                required
-            ></textarea>
-            <button type="submit">Create</button>
-        </form>
+        <div>
+            <h1>Create Note</h1>
+            <Form form={form} layout="vertical" onFinish={handleSubmit}>
+                <Form.Item name="title" label="Title" rules={[{ required: true }]}>
+                    <Input placeholder="Enter title" />
+                </Form.Item>
+                <Form.Item name="content" label="Content" rules={[{ required: true }]}>
+                    <Input.TextArea placeholder="Enter content" rows={4} />
+                </Form.Item>
+                <Form.Item>
+                    <Button type="primary" htmlType="submit">Create</Button>
+                    <Button type="default" onClick={handleCancel}>Cancel</Button>
+                </Form.Item>
+            </Form>
+        </div>
     );
 };
 
