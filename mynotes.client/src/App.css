@@ -1,11 +1,116 @@
-﻿#root {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
+﻿/* App.css */
+
+/* Base Table Styling */
+.ant-table-wrapper {
+    overflow-x: auto; /* Horizontal scrolling for smaller screens */
 }
 
-th, td {
-    padding-left: 1rem;
-    padding-right: 1rem;
+.ant-table {
+    width: 100%;
+    border: 1px solid #e0e0e0; /* Light grey border */
+    border-radius: 8px; /* Rounded corners for modern design */
+    background-color: #ffffff; /* Light table background for contrast */
+    white-space: nowrap;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+    /* Table Header Styling */
+    .ant-table thead > tr > th {
+        font-weight: 600;
+        color: #555555; /* Dark grey text */
+        background-color: #f9f9f9; /* Light grey background for headers */
+        padding: 12px; /* Larger padding for better touch targets */
+    }
+
+    /* Table Row Styling */
+    .ant-table tbody > tr {
+        transition: background-color 0.3s ease;
+    }
+
+        .ant-table tbody > tr:hover {
+            background-color: #f1f5ff; /* Light blue hover effect */
+        }
+
+    /* Table Cell Styling */
+    .ant-table td {
+        font-size: 0.95rem;
+        color: #333333; /* Dark text for readability */
+        padding: 12px;
+    }
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .ant-table th,
+    .ant-table td {
+        font-size: 0.9rem; /* Smaller font for medium screens */
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ant-table th,
+    .ant-table td {
+        font-size: 0.85rem;
+        padding: 6px;
+    }
+
+    .ant-table-wrapper {
+        margin-bottom: 16px; /* Add spacing on small screens */
+    }
+}
+
+/* Button Styles */
+button {
+    border-radius: 8px;
+    font-size: 1rem;
+    padding: 0.5em 1em;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+    button:hover {
+        transform: scale(1.05); /* Subtle hover effect */
+    }
+
+    /* Create Button */
+    button.primary {
+        background-color: #1890ff; /* Ant Design primary blue */
+        color: #ffffff;
+        border: none;
+    }
+
+        button.primary:hover {
+            background-color: #0073e6; /* Slightly darker blue for hover */
+        }
+
+    /* Delete Button */
+    button.delete {
+        background-color: #ff4d4f; /* Ant Design red */
+        color: #ffffff;
+        border: none;
+    }
+
+        button.delete:hover {
+            background-color: #cc0000;
+        }
+
+/* Search Bar Styling */
+.ant-input {
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 1rem;
+}
+
+.ant-select {
+    border-radius: 6px;
+    font-size: 1rem;
+    padding: 0.5em;
+}
+
+/* Page Title */
+h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333333;
+    margin-bottom: 1rem;
+    text-align: center;
 }

@@ -1,0 +1,143 @@
+/* styles.css */
+
+/* Global Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    padding: 0 1rem;
+}
+
+h1 {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 2.5rem;
+    color: #444;
+}
+
+/* Controls Section */
+.controls-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 16px;
+}
+
+    .controls-container .ant-input {
+        flex: 2;        
+        border-radius: 6px;
+    }
+
+    .controls-container .ant-select {
+        flex: 1;
+        max-width: 200px;
+        border-radius: 6px;
+    }
+
+    .controls-container .ant-btn {
+        background-color: #1890ff;
+        border: none;
+        color: white;
+        font-weight: bold;
+        border-radius: 6px;
+    }
+
+/* Notes Grid */
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+/* Note Card */
+.note-card {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .note-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .note-card h3 {
+        margin: 0 0 10px;
+        font-size: 1.2rem;
+        color: #1890ff;
+    }
+
+    .note-card p {
+        flex: 1;
+        font-size: 0.95rem;
+        color: #555;
+        margin: 0 0 10px;
+    }
+
+.note-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+    .note-meta span {
+        color: #888;
+    }
+
+    .note-meta .ant-btn {
+        margin-left: 8px;
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 6px;
+    }
+
+/* Pagination */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.warning-button {
+    color: #000; /* Black text */
+    border-color: #ffc107; /* Initial border color */
+    transition: border-color 0.3s ease; /* Smooth transition for border change */
+}
+
+    .warning-button:hover {
+        border-color: #e0a800 !important; /* Change border color on hover */
+    }
+
+.home-header {
+    text-align: center; /* Center-align the content */
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.home-link {
+    text-decoration: none; /* Remove underline by default */
+    color: #1890ff; /* Default link color */
+    display: inline-block; /* Restrict hover effect to the text only */
+}
+
+    .home-link h1 {
+        margin: 0;
+        padding: 0;
+        display: inline-block; /* Ensure the heading is inline for the hover */
+        font-size: 2.5rem; /* Adjust font size as needed */
+        color: #1890ff;
+    }
+
+    .home-link:hover {
+        text-decoration: underline; /* Apply underline only on hover */
+    }
