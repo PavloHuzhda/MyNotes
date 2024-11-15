@@ -22,8 +22,28 @@ namespace MyNotes.Server.Data
             {
                 throw new ArgumentNullException(nameof(databaseName), "Database name cannot be null or empty.");
             }
+
             var mongoUrl = MongoUrl.Create(connectionString);
-            var mongoClient = new MongoClient(mongoUrl);
+
+            // Create MongoClientSettings to properly configure connection to Amazon DocumentDB            
+            var settings = MongoClientSettings.FromUrl(mongoUrl);
+
+            // Enable SSL/TLS settings for Amazon DocumentDB
+            settings.ServerSelectionTimeout = TimeSpan.FromSeconds(60);
+            settings.UseTls = true;
+            settings.AllowInsecureTls = true;  // Allows hostname mismatch since we're using localhost for tunneling
+            settings.SslSettings = new SslSettings
+            {
+                CheckCertificateRevocation = false // This prevents issues if the certificate revocation check fails
+            };
+
+            // Disable retryable writes, as they are not supported in Amazon DocumentDB
+            settings.RetryWrites = false;
+
+            // Create MongoClient with the updated settings
+            var mongoClient = new MongoClient(settings);
+
+            //var mongoClient = new MongoClient(mongoUrl);
             _database = mongoClient.GetDatabase(databaseName);
         }
 

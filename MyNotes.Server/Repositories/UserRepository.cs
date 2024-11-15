@@ -9,34 +9,37 @@ namespace MyNotes.Server.Repositories
     {
         private readonly IMongoCollection<User> _users;
 
-        public UserRepository(MongoDbService dbService)
+        public UserRepository(IMongoDatabase database)
         {
-            _users = dbService.Users;
-        }
-
-        public async Task<User> GetUserByUsernameAsync(string username)
-        {
-            return await _users.Find(user => user.Username == username).FirstOrDefaultAsync();
+            _users = database.GetCollection<User>("Users");
         }
 
         public async Task CreateUserAsync(User user)
         {
-            //if (string.IsNullOrEmpty(user.Id))
-            //{
-            //    user.Id = ObjectId.GenerateNewId().ToString(); // Ensure the Id is valid
-            //}
+            user.CreatedAt = DateTime.UtcNow;
+            user.UpdatedAt = DateTime.UtcNow;
             await _users.InsertOneAsync(user);
         }
 
-        public async Task<User> GetUserByIdAsync(string id)
+        public async Task<User?> GetUserByEmailAsync(string email)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return null; // Return null if the id is not a valid ObjectId
-            }
+            return await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
+        }
 
-            // Use MongoDB's Find method to get the user by their unique Id
-            return await _users.Find(user => user.Id == objectId).FirstOrDefaultAsync();
+        public async Task<User?> GetUserByIdAsync(string id)
+        {
+            return await _users.Find(u => u.Id == ObjectId.Parse(id)).FirstOrDefaultAsync();
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            user.UpdatedAt = DateTime.UtcNow;
+            await _users.ReplaceOneAsync(u => u.Id == user.Id, user);
+        }
+
+        public async Task DeleteUserAsync(string id)
+        {
+            await _users.DeleteOneAsync(u => u.Id == ObjectId.Parse(id));
         }
     }
 }

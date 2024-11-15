@@ -1,9 +1,11 @@
+//App.tsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import CreateNotePage from "./pages/CreateNotePage";
 import UpdateNotePage from "./pages/UpdateNotePage";
-//import 'antd/dist/antd.css';
+import "antd/dist/reset.css";
+//import "./App.css";
 
 
 const App: React.FC = () => {

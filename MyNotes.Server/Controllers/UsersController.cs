@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyNotes.Server.Entities;
 using MyNotes.Server.Repositories;
@@ -10,35 +11,50 @@ namespace MyNotes.Server.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly IPasswordHasher<User> _passwordHasher;
 
-        public UsersController(IUserRepository userRepository)
+        public UsersController(IUserRepository userRepository, IPasswordHasher<User> passwordHasher)
         {
             _userRepository = userRepository;
+            _passwordHasher = passwordHasher;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
+
+            var existingUser = await _userRepository.GetUserByEmailAsync(model.Email);
+            if (existingUser != null)
+                return BadRequest("Email already in use.");
+
+            var user = new User
+            {
+                Username = model.Username,
+                Email = model.Email,
+            };
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, model.Password);
 
             await _userRepository.CreateUserAsync(user);
-            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+
+            return Ok(new { message = "User registered successfully" });
         }
 
-        [HttpGet("{id:length(24)}", Name = "GetUserById")]
-        public async Task<IActionResult> GetUserById(string id)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var user = await _userRepository.GetUserByIdAsync(id);
-
+            var user = await _userRepository.GetUserByEmailAsync(model.Email);
             if (user == null)
-            {
-                return NotFound();
-            }
+                return Unauthorized("Invalid email or password.");
 
-            return Ok(user);
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
+            if (result == PasswordVerificationResult.Failed)
+                return Unauthorized("Invalid email or password.");
+
+            // Return JWT token or any kind of response after successful login
+            return Ok(new { message = "Login successful" });
         }
     }
 }

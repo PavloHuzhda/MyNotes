@@ -8,12 +8,38 @@ namespace MyNotes.Server
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
+            var options = new WebApplicationOptions
+            {
+                ContentRootPath = "/home/ec2-user/MyNotes",
+                WebRootPath = "/home/ec2-user/MyNotes/wwwroot"
+            };
 
-            // Add services to the container.
+            var builder = WebApplication.CreateBuilder(options);
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            //var builder = WebApplication.CreateBuilder(args);
+
+            builder.WebHost.UseWebRoot(builder.Environment.WebRootPath);
+
+            //Console.WriteLine("Current Directory: " + Directory.GetCurrentDirectory());
+
+            builder.Configuration
+               .SetBasePath(builder.Environment.ContentRootPath)
+               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+               .AddEnvironmentVariables();
+
+            //var configuration = builder.Configuration;
+
+            // Print all configuration values to console
+            //Console.WriteLine("--- Printing Configuration Settings ---");
+            //foreach (var kvp in configuration.AsEnumerable())
+            //{
+            //Console.WriteLine($"{kvp.Key}: {kvp.Value}");
+            //}
+            //Console.WriteLine("----------------------------------------");
+
+
+
+            builder.Services.AddControllers();            
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddSingleton<MongoDbService>();
@@ -24,11 +50,10 @@ namespace MyNotes.Server
             {
                 options.AddPolicy("AllowReactApp",
                     builder =>
-                    {
-                        builder.WithOrigins("https://localhost:5173") // URL of your React app
+                    {                        
+                        builder.AllowAnyOrigin() // URL of your React app
                                .AllowAnyMethod() // Allow GET, POST, PUT, DELETE, etc.
-                               .AllowAnyHeader() // Allow all headers
-                               .AllowCredentials(); // Allow cookies or authorization headers
+                               .AllowAnyHeader(); // Allow all headers                               
                     });
             });
 
@@ -38,7 +63,7 @@ namespace MyNotes.Server
             app.UseStaticFiles();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
