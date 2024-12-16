@@ -2,6 +2,7 @@ import React from "react";
 import { createNote } from "../services/noteService";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, notification } from "antd";
+import './styles/CreateNotePage.css'
 
 const CreateNotePage: React.FC = () => {
     const [form] = Form.useForm();
@@ -22,7 +23,7 @@ const CreateNotePage: React.FC = () => {
     };
 
     return (
-        <div>
+        <div className="create-note-container">
             <h1>Create Note</h1>
             <Form form={form} layout="vertical" onFinish={handleSubmit}>
                 <Form.Item name="title" label="Title" rules={[{ required: true }]}>
@@ -32,8 +33,10 @@ const CreateNotePage: React.FC = () => {
                     <Input.TextArea placeholder="Enter content" rows={4} />
                 </Form.Item>
                 <Form.Item>
-                    <Button type="primary" htmlType="submit">Create</Button>
-                    <Button type="default" onClick={handleCancel}>Cancel</Button>
+                    <div className="create-note-buttons">
+                        <Button type="primary" htmlType="submit">Create</Button>
+                        <Button type="default" onClick={handleCancel}>Cancel</Button>
+                    </div>
                 </Form.Item>
             </Form>
         </div>

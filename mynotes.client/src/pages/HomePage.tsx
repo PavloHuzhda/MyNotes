@@ -1,4 +1,5 @@
-﻿import React, { useEffect, useState } from "react";
+﻿//HomePage.tsx
+import React, { useEffect, useState } from "react";
 import { Note } from "../types/Note";
 import {
     getNotes,
@@ -8,7 +9,7 @@ import {
     updateNote,
 } from "../services/noteService";
 import { Input, Select, Button, notification, Pagination, Modal, Form } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import moment from "moment";
 
 const { Search } = Input;
@@ -95,34 +96,34 @@ const HomePage: React.FC = () => {
         }
     };
 
+
     return (
-        <div className="notes-app">
-            <div className="home-header">
-                <Link
-                    to="/"
-                    className="home-link"
-                    onClick={() => fetchNotes(1, pageSize)}
-                >
-                    <h1>My Notes</h1>
-                </Link>
-            </div>
+        <div className="notes-app">            
             <div className="controls-container">
-                <Search
-                    placeholder="Search notes..."
-                    onSearch={handleSearch}
-                    enterButton
-                    style={{ flex: "2", marginRight: "16px" }}
-                />
-                <Select
-                    placeholder="Sort by: Date"
-                    onChange={handleSort}
-                    style={{ width: 200, marginRight: "16px" }}
-                >
-                    <Option value="datetime_asc">Datetime Ascending</Option>
-                    <Option value="datetime_desc">Datetime Descending</Option>
-                    <Option value="title_asc">Title Ascending</Option>
-                    <Option value="title_desc">Title Descending</Option>
-                </Select>
+                {notes.length === 0 ? (
+                    <div style={{ textAlign: "center", marginTop: "20px" }}>
+                        <p>No Notes Found. Start by creating a new note!</p>
+                    </div>
+                ) : (
+                <>
+                    <Search
+                        placeholder="Search notes..."
+                        onSearch={handleSearch}
+                        enterButton
+                        style={{ flex: "2", marginRight: "16px" }}
+                    />
+                    <Select
+                        placeholder="Sort by: Date"
+                        onChange={handleSort}
+                        style={{ width: 200, marginRight: "16px" }}
+                    >
+                        <Option value="datetime_asc">Datetime Ascending</Option>
+                        <Option value="datetime_desc">Datetime Descending</Option>
+                        <Option value="title_asc">Title Ascending</Option>
+                        <Option value="title_desc">Title Descending</Option>
+                    </Select>
+                </>
+                )}
                 <Button
                     type="primary"
                     onClick={() => navigate("/create")}
@@ -169,7 +170,7 @@ const HomePage: React.FC = () => {
                         </div>
                     </div>
                 ))}
-            </div>
+            </div>            
 
             {totalNotes >= 4 && (
                 <div className="pagination-container">
@@ -187,7 +188,7 @@ const HomePage: React.FC = () => {
             {/* Modal for Viewing Note Details */}
             <Modal
                 title={selectedNote?.title}
-                visible={isViewModalVisible}
+                open={isViewModalVisible}
                 onCancel={handleViewModalCancel}
                 footer={[
                     <Button key="close" onClick={handleViewModalCancel}>
@@ -204,7 +205,7 @@ const HomePage: React.FC = () => {
             {/* Modal for Editing Note */}
             <Modal
                 title="Edit Note"
-                visible={isEditModalVisible}
+                open={isEditModalVisible}
                 onCancel={handleEditModalCancel}
                 footer={null}
             >

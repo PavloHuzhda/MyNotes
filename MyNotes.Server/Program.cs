@@ -1,6 +1,14 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 using MyNotes.Server.Data;
+using MyNotes.Server.Entities;
+using MyNotes.Server.Middleware;
 using MyNotes.Server.Repositories;
+using System.Text;
+
 
 namespace MyNotes.Server
 {
@@ -8,43 +16,35 @@ namespace MyNotes.Server
     {
         public static void Main(string[] args)
         {
-            var options = new WebApplicationOptions
-            {
-                ContentRootPath = "/home/ec2-user/MyNotes",
-                WebRootPath = "/home/ec2-user/MyNotes/wwwroot"
-            };
-
-            var builder = WebApplication.CreateBuilder(options);
-
-            //var builder = WebApplication.CreateBuilder(args);
-
-            builder.WebHost.UseWebRoot(builder.Environment.WebRootPath);
-
-            //Console.WriteLine("Current Directory: " + Directory.GetCurrentDirectory());
-
-            builder.Configuration
-               .SetBasePath(builder.Environment.ContentRootPath)
-               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-               .AddEnvironmentVariables();
-
-            //var configuration = builder.Configuration;
-
-            // Print all configuration values to console
-            //Console.WriteLine("--- Printing Configuration Settings ---");
-            //foreach (var kvp in configuration.AsEnumerable())
+            //var options = new WebApplicationOptions
             //{
-            //Console.WriteLine($"{kvp.Key}: {kvp.Value}");
-            //}
-            //Console.WriteLine("----------------------------------------");
+            //    ContentRootPath = "/home/ec2-user/MyNotes",
+            //    WebRootPath = "/home/ec2-user/MyNotes/wwwroot"
+            //};
 
+            //var builder = WebApplication.CreateBuilder(options);
 
+            var builder = WebApplication.CreateBuilder(args);//test
 
+            //builder.WebHost.UseWebRoot(builder.Environment.WebRootPath);
+
+            //builder.Configuration
+            //   .SetBasePath(builder.Environment.ContentRootPath)
+            //   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            //   .AddEnvironmentVariables();
+            
             builder.Services.AddControllers();            
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddSingleton<MongoDbService>();
+            builder.Services.AddScoped<IMongoDatabase>(sp =>
+            {
+                var mongoService = sp.GetRequiredService<MongoDbService>();
+                return mongoService.GetDatabase();
+            });
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<INoteRepository, NoteRepository>();
+            builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
             builder.Services.AddCors(options =>
             {
@@ -56,6 +56,22 @@ namespace MyNotes.Server
                                .AllowAnyHeader(); // Allow all headers                               
                     });
             });
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+                        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]))
+                    };
+                    options.MapInboundClaims = false;
+                });           
 
             var app = builder.Build();
 
@@ -76,6 +92,7 @@ namespace MyNotes.Server
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseMiddleware<UserClaimsMiddleware>();
 
             app.MapControllers();
 

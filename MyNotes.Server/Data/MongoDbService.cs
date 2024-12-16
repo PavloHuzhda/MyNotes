@@ -30,12 +30,12 @@ namespace MyNotes.Server.Data
 
             // Enable SSL/TLS settings for Amazon DocumentDB
             settings.ServerSelectionTimeout = TimeSpan.FromSeconds(60);
-            settings.UseTls = true;
+            settings.UseTls = false;
             settings.AllowInsecureTls = true;  // Allows hostname mismatch since we're using localhost for tunneling
-            settings.SslSettings = new SslSettings
-            {
-                CheckCertificateRevocation = false // This prevents issues if the certificate revocation check fails
-            };
+            //settings.SslSettings = new SslSettings
+            //{
+            //    CheckCertificateRevocation = false // This prevents issues if the certificate revocation check fails
+            //};
 
             // Disable retryable writes, as they are not supported in Amazon DocumentDB
             settings.RetryWrites = false;
@@ -47,8 +47,8 @@ namespace MyNotes.Server.Data
             _database = mongoClient.GetDatabase(databaseName);
         }
 
-        public IMongoCollection<Note> Notes => _database.GetCollection<Note>("Notes");
-        public IMongoCollection<User> Users => _database.GetCollection<User>("Users");
-        //public IMongoDatabase? Database => _database;
+        //public IMongoCollection<Note> Notes => _database.GetCollection<Note>("Notes");
+        //public IMongoCollection<User> Users => _database.GetCollection<User>("Users");
+        public IMongoDatabase GetDatabase() => _database;
     }
 }

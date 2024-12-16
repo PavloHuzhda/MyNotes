@@ -1,0 +1,25 @@
+/*CreateNotePage.css*/
+/* Center and compact the form */
+.create-note-container {
+    max-width: 400px; /* Limit form width */
+    margin: 50px auto; /* Center the form horizontally */
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+    .create-note-container h2 {
+        text-align: center;
+        color: #1890ff;
+        margin-bottom: 20px;
+    }
+
+.ant-form-item {
+    margin-bottom: 12px; /* Reduce space between form items */
+}
+
+.create-note-buttons {
+    display: flex;
+    justify-content: space-between;
+}

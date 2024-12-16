@@ -10,13 +10,21 @@ namespace MyNotes.Server.Repositories
     {
         private readonly IMongoCollection<Note> _notes;
 
-        public NoteRepository(MongoDbService dbService)
+        //public NoteRepository(MongoDbService dbService)
+        //{
+        //    _notes = dbService.Notes;
+        //}
+        //
+
+        public NoteRepository(IMongoDatabase database)
         {
-            _notes = dbService.Notes;
-        }       
+            _notes = database.GetCollection<Note>("Notes");
+        }
 
         public async Task CreateNoteAsync(Note note)
         {
+            note.CreatedAt = DateTime.UtcNow;
+            note.UpdatedAt = DateTime.UtcNow;
             await _notes.InsertOneAsync(note);
         }       
 
@@ -68,20 +76,27 @@ namespace MyNotes.Server.Repositories
             return await _notes.Find(_ => true).Sort(sortDefinition).ToListAsync();
         }
 
-        public async Task<(IEnumerable<Note>, long)> GetAllNotesAsync(int pageNumber, int pageSize)
+        public async Task<(IEnumerable<Note>, long)> GetAllNotesAsync(string userId, int pageNumber, int pageSize)
         {
-            var totalCount = await _notes.CountDocumentsAsync(_ => true);
-            var notes = await _notes.Find(_ => true)
+            var filter = Builders<Note>.Filter.Eq(n => n.UserId, userId);
+            var totalCount = await _notes.CountDocumentsAsync(filter);
+            var notes = await _notes.Find(filter)
                                     .Skip((pageNumber - 1) * pageSize)
                                     .Limit(pageSize)
                                     .ToListAsync();
 
-            return (notes, totalCount);
+            return (notes, totalCount);            
         }
 
         public async Task<long> GetTotalNotesCountAsync() // Implementation to get the total count
         {
             return await _notes.CountDocumentsAsync(_ => true);
+        }
+
+        public async Task<Note?> GetNoteByIdAsync(string id)
+        {
+            var filter = Builders<Note>.Filter.Eq(n => n.Id, id);
+            return await _notes.Find(filter).FirstOrDefaultAsync();
         }
     }
 }
