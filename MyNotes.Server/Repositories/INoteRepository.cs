@@ -12,7 +12,8 @@ namespace MyNotes.Server.Repositories
         Task<bool> DeleteNoteAsync(string id);
         Task<IEnumerable<Note>> FindByTitleAsync(string title);
         Task<IEnumerable<Note>> SortNotesAsync(string sortBy);
-        Task<(IEnumerable<Note>, long)> GetAllNotesAsync(int pageNumber = 1, int pageSize = 3);
+        Task<(IEnumerable<Note>, long)> GetAllNotesAsync(string userId, int pageNumber = 1, int pageSize = 3);
         Task<long> GetTotalNotesCountAsync();
+        Task<Note?> GetNoteByIdAsync(string id);
     }
 }

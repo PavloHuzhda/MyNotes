@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MyNotes.Server.DTO;
 using MyNotes.Server.Entities;
 using MyNotes.Server.Repositories;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace MyNotes.Server.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class NotesController : ControllerBase
@@ -19,11 +22,22 @@ namespace MyNotes.Server.Controllers
             _noteRepository = noteRepository;
         }
 
+        private string GetUserIdFromContext()
+        {
+            if (HttpContext.Items["UserId"] is string userId)
+            {
+                return userId;
+            }
+            throw new UnauthorizedAccessException("User ID not found.");
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAllNotes(int pageNumber = 1, int pageSize = 3)
         {
-            var (notes, totalNotes) = await _noteRepository.GetAllNotesAsync(pageNumber, pageSize);
+            var userId = GetUserIdFromContext();
 
+            var (notes, totalNotes) = await _noteRepository.GetAllNotesAsync(userId, pageNumber, pageSize);
+            
             return Ok(new
             {
                 notes,
@@ -34,57 +48,66 @@ namespace MyNotes.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateNote(NoteDto noteDto)
+        public async Task<IActionResult> CreateNote([FromBody] NoteDto noteDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            
+            var userId = GetUserIdFromContext();
+
             var note = new Note
             {
-                Id = ObjectId.GenerateNewId().ToString(), // Generate a new ID for the note
                 Title = noteDto.Title,
                 Content = noteDto.Content,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                
+                UserId = userId
             };
 
             await _noteRepository.CreateNoteAsync(note);
-            
-            var allNotes = await _noteRepository.GetAllNotesAsync();
-                        
-            return Ok(allNotes);            
+            return Ok(new { message = "Note created successfully" });
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateNoteAsync(string id, [FromBody] NoteDto noteDto)
         {
-            var result = await _noteRepository.UpdateNoteAsync(id, noteDto);
-            if (result)
+            var userId = GetUserIdFromContext();
+
+            // Validate that the note belongs to the user
+            var note = await _noteRepository.GetNoteByIdAsync(id);
+            if (note == null || note.UserId != userId)
             {
-                var allNotes = await _noteRepository.GetAllNotesAsync();
-                return Ok(allNotes);
+                return Forbid("You are not authorized to update this note.");
             }
-            return NotFound();
+
+            var result = await _noteRepository.UpdateNoteAsync(id, noteDto);
+            if (!result)
+            {
+                return NotFound("Note could not be updated.");
+            }
+
+            return Ok(new { message = "Note updated successfully" });            
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNoteAsync(string id)
         {
+            var userId = GetUserIdFromContext();
+
+            // Validate that the note belongs to the user
+            var note = await _noteRepository.GetNoteByIdAsync(id);
+            if (note == null) return NotFound("Note not found.");
+            if (note.UserId != userId) return Forbid("You are not authorized to delete this note.");
+
+            // Proceed to delete the note
             var result = await _noteRepository.DeleteNoteAsync(id);
-            if (result)
-            {
-                var allNotes = await _noteRepository.GetAllNotesAsync();
-                return Ok(allNotes);
-            }
-            return NotFound();
+            if (!result) return NotFound("Note could not be deleted.");
+
+            // Fetch updated notes for the user
+            var (allNotes, totalNotes) = await _noteRepository.GetAllNotesAsync(userId);
+            return Ok(new { message = "Note deleted successfully" });
         }
 
         [HttpGet("search")]
         public async Task<IActionResult> FindByTitleAsync(string title)
         {
+            var userId = GetUserIdFromContext();
+
             var notes = await _noteRepository.FindByTitleAsync(title);
             return Ok(notes);
         }
@@ -92,6 +115,8 @@ namespace MyNotes.Server.Controllers
         [HttpGet("sort")]
         public async Task<IActionResult> SortNotesAsync(string sortBy)
         {
+            var userId = GetUserIdFromContext();
+
             var notes = await _noteRepository.SortNotesAsync(sortBy);
             return Ok(notes);
         }

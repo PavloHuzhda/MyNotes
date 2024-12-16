@@ -15,6 +15,10 @@ namespace MyNotes.Server.Entities
         [BsonElement("content")]
         public string Content { get; set; } = null!;
 
+        [BsonElement("userId")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string UserId { get; set; } = null!;
+
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; }
 

@@ -12,6 +12,12 @@ namespace MyNotes.Server.Entities
         [BsonElement("username")]
         public string Username { get; set; } = null!;
 
+        [BsonElement("firstname")]
+        public string Firstname { get; set; } = null!;
+
+        [BsonElement("secondname")]
+        public string Secondname { get; set; } = null!;
+
         [BsonElement("email")]
         public string Email { get; set; } = null!;
 
