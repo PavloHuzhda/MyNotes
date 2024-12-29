@@ -39,3 +39,31 @@ export const getCurrentUser = async (): Promise<unknown> => {
     });
     return response.data;
 };
+
+export const forgotPasswordUser = async (userData: { email: string }): Promise<{ message: string }> => {
+    try {
+        const response = await axios.post(`${API_URL}/forgot-password`, userData);
+        return response.data;
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            throw new Error(error.response?.data?.message || "Failed to send forgot password email.");
+        }
+        throw new Error("An unexpected error occurred.");
+    }
+};
+
+export const resetPasswordUser = async (resetData: { token: string, newPassword: string }): Promise<{ message: string }> => {
+    console.log("Reset Password Service - Payload:", resetData);
+
+    try {
+        const response = await axios.post(`${API_URL}/reset-password`, resetData);
+        return response.data;
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            console.error("Backend Response Error:", error.response?.data);
+            throw new Error(error.response?.data?.message || "Failed to reset password.");
+        }
+        console.error("Unexpected Error:", error);
+        throw new Error("An unexpected error occurred.");
+    }
+};

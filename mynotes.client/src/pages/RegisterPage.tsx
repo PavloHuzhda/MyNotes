@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Form, Input, Button, notification } from "antd";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/authService";
+import axios from "axios";
 
 const RegisterPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
@@ -24,10 +25,14 @@ const RegisterPage: React.FC = () => {
             });
             navigate("/login");
         } catch (error: unknown) {
-            notification.error({
-                message: "Registration Failed",
-                description: error.response?.data?.message || "An error occurred.",
-            });
+            if (axios.isAxiosError(error)) {
+                notification.error({
+                    message: "Registration Failed",
+                    description: error.response?.data?.message || "An error occurred.",
+                });
+            }
+            throw new Error("An unexpected error occurred.");
+            
         } finally {
             setLoading(false);
         }
