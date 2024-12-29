@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MyNotes.Server.Entities
+namespace MyNotes.Server.DTO
 {
-    public class LoginModel
+    public class LoginDTO
     {
         [Required(ErrorMessage = "Email or username is required.")]
         public string Identifier { get; set; } = null!;

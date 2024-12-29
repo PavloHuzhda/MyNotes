@@ -1,0 +1,13 @@
+.auth-container {
+    max-width: 400px;
+    margin: 50px auto;
+    text-align: center;
+}
+
+    .auth-container h1 {
+        margin-bottom: 24px;
+    }
+
+    .auth-container p {
+        margin-top: 16px;
+    }

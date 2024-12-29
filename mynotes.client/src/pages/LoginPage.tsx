@@ -42,12 +42,7 @@ const LoginPage: React.FC = () => {
     return (
         <div className="auth-container">
             <h1>Login</h1>
-            <Form
-                name="login"
-                layout="vertical"
-                onFinish={handleLogin}
-                autoComplete="off"
-            >
+            <Form name="login" layout="vertical" onFinish={handleLogin} autoComplete="off">
                 <Form.Item
                     label="Email or Username"
                     name="identifier"
@@ -60,21 +55,28 @@ const LoginPage: React.FC = () => {
                     name="password"
                     rules={[{ required: true, message: "Please enter your password." }]}
                 >
-                    <Input.Password placeholder="Password" />
+                    <Input.Password placeholder="Password" visibilityToggle />
                 </Form.Item>
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={loading}>
+                    <Button type="primary" htmlType="submit" loading={loading} block>
                         Login
                     </Button>
                 </Form.Item>
             </Form>
+
             <p>
                 Don't have an account?{" "}
-                <Button type="link" onClick={() => navigate("/register")}>
+                <Button type="link" style={{ fontSize: "14px", padding: "0" }} onClick={() => navigate("/register")}>
                     Register here
                 </Button>
             </p>
+            <p>
+                <Button type="link" style={{ fontSize: "14px", padding: "0" }} onClick={() => navigate("/forgot-password")}>
+                    Forgot Password?
+                </Button>
+            </p>
         </div>
+
     );
 };
 

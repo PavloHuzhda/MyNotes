@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MyNotes.Server.Entities
+namespace MyNotes.Server.DTO
 {
-    public class RegisterModel
+    public class RegisterDTO
     {
         [Required(ErrorMessage = "Username is required.")]
         public string Username { get; set; } = null!;
