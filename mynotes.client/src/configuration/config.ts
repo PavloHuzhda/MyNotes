@@ -1,8 +1,11 @@
 //config.ts
-const API_URLS = {
-    development: "https://localhost:5001/api", // Local development API URL
-    production: "https://footballersnotes.click/api", // Production API URL
-};
+// const API_URLS = {
+//     development: "http://localhost:8083/api",
+//     production: "https://footballersnotes.click/api",
+// };
 
-// Dynamically select the API URL based on the `NODE_ENV`
-export const API_BASE_URL = API_URLS[process.env.NODE_ENV as keyof typeof API_URLS] || API_URLS.development;
+// export const API_BASE_URL =
+//     API_URLS[process.env.NODE_ENV as keyof typeof API_URLS] || API_URLS.development;
+
+
+export const API_BASE_URL = "http://localhost:8083/api";

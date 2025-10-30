@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: mysecretpassword
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+
+  mynotes.api:
+    build:
+      context: ./MyNotes.Server
+      dockerfile: Dockerfile
+    container_name: mynotes_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8083
+      ConnectionStrings__DbConnection: mongodb://admin:mysecretpassword@mongo:27017/
+      ConnectionStrings__DatabaseName: MyNotesPortfolio
+    ports:
+      - "8083:8083"
+    depends_on:
+      - mongo
+    restart: always
+
+  mynotes.ui:
+    build:
+      context: ./mynotes.client
+      dockerfile: Dockerfile
+    container_name: mynotes_ui
+    environment:
+      NODE_ENV: production
+    ports:
+      - "80:80"
+    depends_on:
+      - mynotes.api
+    restart: always
+
+volumes:
+  mongo_data:

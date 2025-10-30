@@ -8,7 +8,8 @@
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
     <SpaProxyServerUrl>https://localhost:5173</SpaProxyServerUrl>
     <UserSecretsId>844d371d-0f5f-4025-819e-52d43bf83782</UserSecretsId>    
-    <StartupObject></StartupObject>        
+    <StartupObject></StartupObject>    
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>        
   </PropertyGroup>
 
   <ItemGroup>

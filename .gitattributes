@@ -1,7 +1,29 @@
 ###############################################################################
 # Set default behavior to automatically normalize line endings.
 ###############################################################################
-* text=auto
+
+# --- Normalize line endings ---
+* text=auto eol=lf
+
+# --- File-specific rules ---
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.cs text eol=lf
+*.csproj text eol=lf
+*.dockerfile text eol=lf
+Dockerfile text eol=lf
+
+# --- Prevent binary files from being converted ---
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
 
 ###############################################################################
 # Set default behavior for command prompt diff.
