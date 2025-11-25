@@ -1,47 +1,39 @@
-import { fileURLToPath, URL } from 'node:url';
-
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
-if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
-    if (0 !== child_process.spawnSync('dotnet', [
-        'dev-certs',
-        'https',
-        '--export-path',
-        certFilePath,
-        '--format',
-        'Pem',
-        '--no-password',
-    ], { stdio: 'inherit', }).status) {
-        throw new Error("Could not create certificate.");
-    }
-}
+// Продакшен + Docker-ready конфіг
+export default defineConfig(({ mode }) => {
+    // Підтягування env змінних
+    const env = loadEnv(mode, process.cwd(), '');
 
-const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
-    env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7269';
+    // API URL (можеш підлаштувати)
+    const apiBaseUrl = env.VITE_API_BASE_URL ?? 'http://localhost:8083';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
-  },
-  plugins: [react()],
-    resolve: {
-        alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
-        }
-    },
-    server: {
-    port: 8082,
-        proxy: {
-      '/api': {
-        target: 'http://localhost:8083',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
-  preview: {
-    port: 8082,    
+    return {
+        plugins: [react()],
+
+        resolve: {
+            alias: {
+                '@': '/src'
+            }
         },
+
+        server: {
+            port: 8082,
+            proxy: {
+                '/api': {
+                    target: apiBaseUrl,
+                    changeOrigin: true,
+                }
+            }
+        },
+
+        preview: {
+            port: 8082
+        },
+
+        build: {
+            outDir: 'dist',
+        },
+    };
 });
