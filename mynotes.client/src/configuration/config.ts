@@ -1,11 +1,19 @@
-//config.ts
-// const API_URLS = {
-//     development: "http://localhost:8083/api",
-//     production: "https://footballersnotes.click/api",
-// };
+// src/configuration/config.ts (або де в≥н у тебе лежить)
 
-// export const API_BASE_URL =
-//     API_URLS[process.env.NODE_ENV as keyof typeof API_URLS] || API_URLS.development;
+const getBaseApiUrl = () => {
+    // якщо в env €вний base url Ч використовуЇмо його (опц≥йно)
+    const envBase = import.meta.env.VITE_API_BASE_URL;
+    if (envBase) {
+        return envBase.replace(/\/$/, ''); // прибираЇмо / в к≥нц≥
+    }
 
+    // ” продакшен≥ йдемо на той самий origin, але через /api
+    if (import.meta.env.PROD) {
+        return '/api';
+    }
 
-export const API_BASE_URL = "http://localhost:8083/api";
+    // ” розробц≥ Ч €к ≥ ран≥ше, на локальний бек
+    return 'http://localhost:8083/api';
+};
+
+export const API_BASE_URL = getBaseApiUrl();
